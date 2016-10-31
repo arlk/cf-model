@@ -37,6 +37,9 @@ d2r = pi/180;
 crazyflie
 ic  = [0 0 0 0 0 0 0 0 0 0 0 0];
 ic2 = [0 0 0 0 0 0 0 0 0 0 0 0];
+% Motor dynamics
+Gm = tf(40,[1 40]);
+
 default_control
 geometric_control
 

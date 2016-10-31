@@ -18,14 +18,14 @@ geometric_ctl.mix = [-1/2 -1/2 -1 1;...
 
 geometric_ctl.gains = [16*model.Mass 5.6*model.Mass 8.81 2.54]; % kx kv kr kw
 
-geometric_ctl.thrust_gain = 130500;
+geometric_ctl.thrust_gain = 1.369715857218715e+05;
 
 % Saturations moment(upper); moment(lower); thrust
 geometric_ctl.sat = [32000;-32000;60000];
 
-geometric_ctl.kp = 0.2*eye(3)
+geometric_ctl.kp = diag([0.2 0.2 0.25])
 
-geometric_ctl.kv = 0.1*eye(3)
+geometric_ctl.kv = diag([0.25 0.25 0.15])
 
 geometric_ctl.kr = 1000*diag([9 9 7])
 
