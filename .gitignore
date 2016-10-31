@@ -1,0 +1,12 @@
+# Autosaves
+*~
+*asv
+*autosave
+
+# Compiled MEX binaries (all platforms)
+*.mex*
+
+# Simulink Code Generation
+slprj/
+hdlsrc/
+*_grt_rtw/
