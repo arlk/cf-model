@@ -24,7 +24,7 @@ addpath('functions');
 
 %%	2 Create Time
 % dt = 0.0001;
-T = 20;
+T = 10;
 % t = 0:dt:T;
 % L = T/dt+1;
 
@@ -54,6 +54,8 @@ sim('simQuad', T);
 %%	6 Plot
 % plot_traj(state1,ref_path1);
 plot_traj(state2, ref_path2);
+figure
+plot_traj(state1, ref_path1);
 % plot_traj(state3);
 % plot_traj(state4);
 

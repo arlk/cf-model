@@ -29,3 +29,16 @@ Ixx =  1.395e-05;
 Iyy = 1.395e-05;
 Izz =  2.173e-05;
 cf2.Inertia = diag([Ixx Iyy Izz]);
+
+b=cf2.b;
+m = cf2.Mass;
+l=cf2.ArmLength;
+s=sin(pi/4);
+k=cf2.k;
+
+cf2.speed2force=[b/m b/m b/m b/m;
+                -b*l*s -b*l*s b*l*s b*l*s;
+                -b*l*s b*l*s b*l*s -b*l*s;
+                -k k -k k];
+
+cf2.force2speed=cf2.speed2force^-1;

@@ -23,10 +23,10 @@ geometric_ctl.thrust_gain = 1.369715857218715e+05;
 % Saturations moment(upper); moment(lower); thrust
 geometric_ctl.sat = [32000;-32000;60000];
 
-geometric_ctl.kp = diag([0.2 0.2 0.25])
+geometric_ctl.kp = diag([0.35 0.35 0.25])
 
 geometric_ctl.kv = diag([0.25 0.25 0.15])
 
-geometric_ctl.kr = 1000*diag([9 9 7])
+geometric_ctl.kr = 1000*diag([30 30 20])
 
-geometric_ctl.komg = 1000*diag([4 4 3])
+geometric_ctl.komg = 1000*diag([5 5 3])
