@@ -24,6 +24,8 @@ cf2.a = [   cf2.Diameter^2 / 10                        ;...                % bod
             cf2.Diameter^2 / 10                        ;...                % body cross sectional area (Y)
             pi/4 * (cf2.RotorRadius*2)^2                ];                 % body cross sectional area (Z)
 
+% Motor dynamics
+cf2.motorDyn = tf(40,[1 40]);
 
 Ixx =  1.395e-05;
 Iyy = 1.395e-05;
