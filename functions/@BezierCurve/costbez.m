@@ -6,8 +6,8 @@ function J = costbez(bc, T)
   A_T = [];
 
   for k = 0:(length(T)-1)
-    A_T = [A_T T(k+1).^bc.A_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
-    Q_T = [Q_T T(k+1).^bc.Q_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
+    A_T = [A_T T(k+1).^-bc.A_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
+    Q_T = [Q_T T(k+1).^-bc.Q_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
   end
   %%% }}}
 

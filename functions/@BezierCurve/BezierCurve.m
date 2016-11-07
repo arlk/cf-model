@@ -47,7 +47,7 @@ classdef BezierCurve < handle
         bc.Q_tp = [bc.Q_tp zeros((k-1)*bc.n_bcp, bc.n_bcp); ...
           zeros(bc.n_bcp, (k-1)*bc.n_bcp) ones(bc.n_bcp)];
       end
-      bc.Q_tp = (der-1)*bc.Q_tp;
+      bc.Q_tp = (2*der-1)*bc.Q_tp;
       %%% }}}
 
       %% Computing `d` {{{
