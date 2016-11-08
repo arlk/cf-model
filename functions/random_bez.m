@@ -1,15 +1,15 @@
 %% Setup {{{
 clear all;
-num_pts = 15;
+num_pts = 5;
 min_der = 4;
+
 bcps = min_der*2+2;
 waypts = rand(num_pts,3);
-segs = length(waypts) - 1;
+segs = size(waypts,1) - 1
 %%% }}}
 
 %% Solve {{{
-bez = BezierTraj(waypts, min_der, 100, 100, segs*bcps);
-% bez = BezierTraj(waypts, min_der, 100, 100, 0);
+bez = BezierTraj(waypts, min_der, segs*bcps);
 bez.optimize();
 bez.Tratio
 traj = [bez.x.M_inv*bez.x.a  bez.y.M_inv*bez.y.a bez.z.M_inv*bez.z.a];
