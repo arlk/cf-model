@@ -2,10 +2,8 @@
 clear all;
 num_pts = 5;
 min_der = 4;
-yaw_der = 2;
 
 bcps = min_der*2+2;
-ybcps = yaw_der*2+2;
 waypts = rand(num_pts,3);
 % waypts = [ 0 0 0; ...
 %            1 2 0; ...
@@ -17,7 +15,7 @@ segs = size(waypts,1) - 1;
 
 %% Solve {{{
 tic;
-bez = BezierTraj(waypts, min_der, yaw_der, segs*bcps);
+bez = BezierTraj(waypts, min_der, segs*bcps);
 bez.optimize();
 toc
 bez.Tratio
@@ -67,7 +65,7 @@ for k = 0:(segs-1)
   hold on;
   ts = prev_ts+bez.Tratio(k+1);
   tvec = linspace(prev_ts,ts, 50);
-  plt = gen_bezier(tvec',bez.phi_cp(k*ybcps+1:ybcps*(k+1),:));
+  plt = gen_bezier(tvec',bez.phi_cp(k*bcps+1:bcps*(k+1),:));
   plot(tvec, plt,'LineWidth', 1.25);
   prev_ts = ts;
 end

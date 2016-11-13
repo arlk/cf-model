@@ -13,7 +13,7 @@ function res = optimize(bt)
 
   phi_wp = bt.get_phi_wp();
   bt.waypts = [bt.waypts phi_wp];
-  bt.phi = BezierCurve(phi_wp, bt.yder);
+  bt.phi = BezierCurve(phi_wp, bt.der);
   bt.phi.costbez(bt.Tratio);
   bt.phi_cp = bt.phi.M_inv*bt.phi.a;
 
