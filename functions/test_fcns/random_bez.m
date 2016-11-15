@@ -1,5 +1,10 @@
-%% Setup {{{
+%% Pre-setup {{{
 clear all;
+addpath('../');
+addpath('../bezier_utils');
+%%% }}}
+
+%% Setup {{{
 num_pts = 5;
 min_der = 4;
 

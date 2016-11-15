@@ -8,7 +8,10 @@ Arun Lakshmanan
 close all;
 clear;
 clc;
-addpath('functions');
+
+addpath('functions/control_utils');
+addpath('functions/model_utils');
+addpath('functions/plot_utils');
 
 %% Sim time
 T = 10;
