@@ -2,28 +2,26 @@
 clear all;
 addpath('../');
 addpath('../bezier_utils');
-addpath('../model_utils');
 %%% }}}
 
 %% Setup {{{
 num_pts = 5;
 min_der = 4;
 
-crazyflie;
-
 bcps = min_der*2+2;
-waypts = rand(num_pts,3);
-% waypts = [ 0 0 0; ...
-%            1 2 0; ...
-%            2 1 0; ...
-%            3 3 0; ...
-%            4 -2 0 ];
+% waypts = rand(num_pts,3);
+waypts = [ 0 0 0; ...
+           1 2 0; ...
+           2 1 0; ...
+           3 3 0; ...
+           5 -2 0 ];
 segs = size(waypts,1) - 1;
 %%% }}}
 
 %% Solve {{{
 tic;
-bez = BezierTraj(waypts, min_der, segs*bcps, cf2);
+bez = BezierTraj(waypts, min_der, segs*bcps);
+% bez = BezierTraj(waypts, min_der, 50);
 bez.optimize();
 toc
 bez.Tratio
@@ -51,8 +49,22 @@ hold on;
 scatter3(traj(:,1), traj(:,2), traj(:,3), 16, 'g', 'filled');
 hold on;
 scatter3(waypts(:,1), waypts(:,2), waypts(:,3), 36, 'r', 'filled');
+xlim([-1 6]);
+ylim([-3 4]);
 hold on;
 %%% }}}
+
+% figure;
+% ax = gca;
+% ax.ColorOrderIndex = 1;
+% for k = 1:segs
+%   hold on;
+%   plot(waypts(k:k+1,1),waypts(k:k+1,2), 'LineWidth', 1.25);
+% end
+% hold on;
+% scatter(waypts(:,1), waypts(:,2), 36, 'r', 'filled');
+% xlim([-1 6]);
+% ylim([-3 4]);
 
 %% Plot phi quivers {{{
 q = quiver3(bez.waypts(:,1), bez.waypts(:,2), bez.waypts(:,3), ...
@@ -79,5 +91,4 @@ for k = 0:(segs-1)
 end
 %%% }}}
 %%% }}}
-
 % vim:foldmethod=marker:foldlevel=0
