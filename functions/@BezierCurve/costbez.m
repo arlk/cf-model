@@ -21,7 +21,10 @@ function J = costbez(bc, T)
   n_fixed = length(bc.dF);
   R_PP = R((n_fixed+1):end, (n_fixed+1):end);
   R_FP = R(1:n_fixed, (n_fixed+1):end);
-  dP = -R_PP\((R_FP')*bc.dF);
+  R_PF = R((n_fixed+1):end, 1:n_fixed);
+  dP = -(R_PP+R_PP')\(R_PF*bc.dF+(R_FP')*bc.dF);
+  % Old method from Richter's paper - probably wrong.
+  % dP = -R_PP\((R_FP')*bc.dF);
   %%% }}}
 
   %% Computing `a` {{{
