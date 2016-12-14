@@ -20,6 +20,7 @@ classdef BezierTraj < handle
     u2_max_t
     u3_max_t
     veh
+    k_res
   end
   methods
     function bt = BezierTraj(waypts, der, iterations, model)

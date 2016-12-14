@@ -15,15 +15,18 @@ addpath('functions/plot_utils');
 
 %% Sim time
 T = 10;
+enable_est = 1;
 
 %% Initialize crazyflie
 ic  = [0 0 0 0 0 0 0 0 0 0 0 0];
 crazyflie
 geometric_control
 est_params
-
-%% PID setup for comparison
-pid_control
+if enable_est
+  set_param('cf_model/GC_Estimator','commented','off');
+else
+  set_param('cf_model/GC_Estimator','commented','through');
+end
 
 %% Simulate
 sim('cf_model', T);

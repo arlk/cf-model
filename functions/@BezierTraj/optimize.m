@@ -4,6 +4,8 @@ function res = optimize(bt)
 options = optimset('Display', 'off', 'MaxIter', bt.iterations);
 T = ones(1, size(bt.waypts,1)-2)/(size(bt.waypts,1)-1);
 res = fminsearch(@bt.cost3bez, T, options);
+COST = bt.cost3bez(res)
+RES = [res 1-sum(res)]
 bt.Tratio = [res 1-sum(res)];
 
 bt.bez_cp = [bt.x.M_inv*bt.x.a ...
@@ -22,6 +24,6 @@ bt.u1_max_t = fminbnd(@(t) (-bt.u1(bt.update_ders(t))), 0, 1, options);
 bt.u2_max_t = fminbnd(@(t) (-abs(bt.u2(bt.rates(bt.update_ders(t))))), 0, 1, options);
 bt.u3_max_t = fminbnd(@(t) (-abs(bt.u3(bt.rates(bt.update_ders(t))))), 0, 1, options);
 
-k_res = fmincon(@(k) k, 1, [], [], [], [], 0.01, 100, @bt.feasible, options);
-k_res
+bt.k_res = fmincon(@(k) k, 1, [], [], [], [], 0.01, 10, @bt.feasible, options);
+bt.k_res
 end

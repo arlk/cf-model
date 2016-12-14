@@ -18,14 +18,20 @@ y_der = bt.y_ders(:,(seg-1)*n_bcp+1:seg*n_bcp);
 z_der = bt.z_ders(:,(seg-1)*n_bcp+1:seg*n_bcp);
 phi_der = bt.phi_ders(:,(seg-1)*n_bcp+1:seg*n_bcp);
 
-t_poly = 0:(n_bcp-1);
-t_poly = t.^t_poly;
+x_d = [];
+y_d = [];
+z_d = [];
+phi_d = [];
+for d = 1:(bt.der+1)
+  t_poly = 1:(n_bcp-d);
+  t_poly = t.^[repelem([0],d) t_poly];
 
-x_der = x_der*t_poly';
-y_der = y_der*t_poly';
-z_der = z_der*t_poly';
-phi_der = phi_der*t_poly';
+  x_d = [x_d; x_der(d,:)*t_poly'];
+  y_d = [y_d; y_der(d,:)*t_poly'];
+  z_d = [z_d; z_der(d,:)*t_poly'];
+  phi_d = [phi_d; phi_der(d,:)*t_poly'];
+end
 
-der = [x_der'; y_der'; z_der'; phi_der'];
+der = [x_d'; y_d'; z_d'; phi_d'];
 
 end
