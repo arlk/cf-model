@@ -18,7 +18,7 @@ segs = size(waypts,1) - 1;
 
 %% Solve {{{
 tic;
-bez = BezierTraj(waypts, min_der, segs*bcps, cf2);
+bez = BezierTraj(waypts, min_der, 10, cf2);
 bez.optimize();
 toc
 bez.Tratio
@@ -49,30 +49,30 @@ scatter3(waypts(:,1), waypts(:,2), waypts(:,3), 36, 'r', 'filled');
 hold on;
 %%% }}}
 
-%% Plot phi quivers {{{
-q = quiver3(bez.waypts(:,1), bez.waypts(:,2), bez.waypts(:,3), ...
-        cos(bez.waypts(:,4)), sin(bez.waypts(:,4)), zeros(5, 1));
-
-q.LineWidth = 1.5;
-q.MaxHeadSize = 0.2;
-q.Color = 'r';
-q.AutoScaleFactor = 0.1;
-%%% }}}
+% %% Plot phi quivers {{{
+% q = quiver3(bez.waypts(:,1), bez.waypts(:,2), bez.waypts(:,3), ...
+%         cos(bez.waypts(:,4)), sin(bez.waypts(:,4)), zeros(5, 1));
+%
+% q.LineWidth = 1.5;
+% q.MaxHeadSize = 0.2;
+% q.Color = 'r';
+% q.AutoScaleFactor = 0.1;
+% %%% }}}
 
 axis tight
 
-%% Plot phi trajectory {{{
-figure;
-prev_ts = 0;
-for k = 0:(segs-1)
-  hold on;
-  ts = prev_ts+bez.Tratio(k+1);
-  tvec = linspace(prev_ts,ts, 50);
-  plt = gen_bezier(tvec',bez.phi_cp(k*bcps+1:bcps*(k+1),:));
-  plot(tvec, plt,'LineWidth', 1.25);
-  prev_ts = ts;
-end
-%%% }}}
+% %% Plot phi trajectory {{{
+% figure;
+% prev_ts = 0;
+% for k = 0:(segs-1)
+%   hold on;
+%   ts = prev_ts+bez.Tratio(k+1);
+%   tvec = linspace(prev_ts,ts, 50);
+%   plt = gen_bezier(tvec',bez.phi_cp(k*bcps+1:bcps*(k+1),:));
+%   plot(tvec, plt,'LineWidth', 1.25);
+%   prev_ts = ts;
+% end
+% %%% }}}
 %%% }}}
 
 % vim:foldmethod=marker:foldlevel=0

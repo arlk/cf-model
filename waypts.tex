@@ -1,0 +1,59 @@
+% This file was created by matlab2tikz.
+%
+%The latest updates can be retrieved from
+%  http://www.mathworks.com/matlabcentral/fileexchange/22022-matlab2tikz-matlab2tikz
+%where you can also make suggestions and rate matlab2tikz.
+%
+\definecolor{mycolor1}{rgb}{0.85000,0.32500,0.09800}%
+\definecolor{mycolor2}{rgb}{0.00000,0.44700,0.74100}%
+%
+\begin{tikzpicture}
+
+\begin{axis}[%
+width=4.521in,
+height=3.566in,
+at={(0.758in,0.481in)},
+scale only axis,
+xmin=-1,
+xmax=6,
+xtick={-16, -14, -12, -10,  -8,  -6,  -4,  -2,   0,   2,   4,   6,   8,  10,  12,  14,  16},
+xlabel style={font=\color{white!15!black}},
+xlabel={X (m)},
+ymin=-3,
+ymax=4,
+ytick={-16, -14, -12, -10,  -8,  -6,  -4,  -2,   0,   2,   4,   6,   8,  10,  12,  14,  16},
+ylabel style={font=\color{white!15!black}},
+ylabel={Y (m)},
+axis background/.style={fill=white},
+xmajorgrids,
+ymajorgrids,
+]
+\addplot[only marks, mark=square*, mark options={}, mark size=3.0pt, color=mycolor1, fill=mycolor1] table[row sep=crcr]{%
+x	y\\
+0	0\\
+1	2\\
+2	1\\
+3	3\\
+5	-2\\
+};
+\node[right, align=left, font=\Large]
+at (axis cs:-0.20,-0.3) {$w_0$};
+\node[right, align=left, font=\Large]
+at (axis cs:0.80,2.25) {$w_1$};
+\node[right, align=left, font=\Large]
+at (axis cs:1.80,0.7) {$w_2$};
+\node[right, align=left, font=\Large]
+at (axis cs:2.80,3.25) {$w_3$};
+\node[right, align=left, font=\Large]
+at (axis cs:4.80,-2.3) {$w_4$};
+\addplot [color=mycolor2, dashed, line width=2.0pt, forget plot]
+  table[row sep=crcr]{%
+x	y\\
+0	0\\
+1	2\\
+2	1\\
+3	3\\
+5	-2\\
+};
+\end{axis}
+\end{tikzpicture}%

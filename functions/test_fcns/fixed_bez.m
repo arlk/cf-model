@@ -20,7 +20,7 @@ waypts = [ 0 0 0; ...
            5 -2 0 ];
 segs = size(waypts,1) - 1;
 %%% }}}
-iters = [0 4 8 12 16 32];
+iters = [0 1 2 4 8 12];
 % %% Solve {{{
 for iter = 1:6
 tic;
@@ -57,8 +57,8 @@ axis tight;
 
 %% Plot wp and ctrl pts {{{
 % hold on;
-% scatter3(traj(:,1), traj(:,2), traj(:,3), 16, yellow, ...
-% 'filled', 'MarkerEdgeColor', 'k');
+scatter3(traj(:,1), traj(:,2), traj(:,3), 16, yellow, ...
+'filled', 'MarkerEdgeColor', 'k');
 title_string  = sprintf('n = %d',iters(iter));
 title(title_string);
 grid on;
@@ -220,6 +220,6 @@ end
 % xlabel('Time (s)');
 % set(gca,'Xtick',0:2:10);
 % %%% }}}
-%%% }}}
+% %% }}}
 matlab2tikz('../../temp_opt.tex');
 % vim:foldmethod=marker:foldlevel=0

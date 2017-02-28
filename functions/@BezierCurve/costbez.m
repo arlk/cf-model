@@ -2,17 +2,17 @@
 % Calculate costs for minimum energy bezier spline
 function J = costbez(bc, T)
   %% Computing time matrices {{{
-  Q_T = [];
   A_T = [];
+  Q_R = [];
 
   for k = 0:(length(T)-1)
     A_T = [A_T T(k+1).^-bc.A_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
-    Q_T = [Q_T T(k+1).^-bc.Q_tp(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
+    Q_R = [Q_R (T(k+1)^(-bc.der*2+1))*bc.Q_r(:, (k*bc.n_bcp+1):((k+1)*bc.n_bcp))];
   end
   %%% }}}
 
   %% Computing `R` {{{
-  Q_full = bc.Q.*Q_T;
+  Q_full = Q_R;
   A_full = bc.A.*A_T;
   R = bc.C*inv(A_full')*Q_full*inv(A_full)*(bc.C');
   %%% }}}
@@ -36,6 +36,8 @@ function J = costbez(bc, T)
   %% Computing `J` {{{
   J = (bc.a')*Q_full*bc.a;
   %%% }}}
+
+
 
 %%
 end
