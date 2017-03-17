@@ -36,8 +36,8 @@ function J = costbez(bc, T)
   %% Computing `J` {{{
   J = (bc.a')*Q_full*bc.a;
   %%% }}}
-
-
+  
+ J=J;
 
 %%
 end

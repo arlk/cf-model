@@ -1,11 +1,11 @@
 %% Pre-setup {{{
-clear all;
+clear;
 addpath('../');
 addpath('../bezier_utils');
 addpath('../model_utils');
 addpath('/home/arun/git_projs/matlab2tikz/src');
 %%% }}}
-
+cmap = lines;
 %% Setup {{{
 num_pts = 5;
 min_der = 4;
@@ -13,16 +13,75 @@ min_der = 4;
 crazyflie;
 
 bcps = min_der*2+2;
-waypts = [ 0 0 0; ...
-           1 2 0; ...
-           2 1 0; ...
-           3 3 0; ...
-           5 -2 0 ];
+
+waypts = [  -10 -6 0; ...
+            -4 10 0; ...
+            -1.5 -1 0; ...
+            2 6 0; ...
+            10 10 0];
+       
+% waypts = [  -8 -4 0; ...
+%             -4 12 0; ...
+%             -1.5 0 0; ...
+%             1 5 0; ...
+%             10 10 0];
+%        
+% waypts = [  0 0 0; ...
+%             1 0 0; ...
+%             1 1 0; ...
+%             0 1 0; ...
+%             0 0 0];
+        
+obsarray = {};
+obsarray{length(obsarray)+1} =  .75*[0  0  0
+                1  0  0
+                1  2  0
+                0  2  0 
+                0  0  0]+[5*ones(5,1),7.5*ones(5,1),zeros(5,1)];          
+obsarray{length(obsarray)+1} =  [0  0  0
+                2  0  0
+                2  10  0
+                0  10  0 
+                0  0  0]+[-1*ones(5,1),7*ones(5,1),zeros(5,1)];         
+obsarray{length(obsarray)+1} =  [0  0  0
+                2  0  0
+                2  10  0
+                0  10  0 
+                0  0  0]+[-6*ones(5,1),-5*ones(5,1),zeros(5,1)];         
+obsarray{length(obsarray)+1} =  [0  0  0
+                2  0  0
+                2  10  0
+                0  10  0 
+                0  0  0]+[2*ones(5,1),-5*ones(5,1),zeros(5,1)];                          
+
+% obsarray{1} =  [0  0  0
+%                 2  0  0
+%                 2  10  0
+%                 0  10  0 
+%                 0  0  0]+[-1*ones(5,1),7*ones(5,1),zeros(5,1)];         
+% obsarray{2} =  [0  0  0
+%                 2  0  0
+%                 2  10  0
+%                 0  10  0 
+%                 0  0  0]+[-7*ones(5,1),-5*ones(5,1),zeros(5,1)];         
+% obsarray{3} =  [0  0  0
+%                 2  0  0
+%                 2  10  0
+%                 0  10  0 
+%                 0  0  0]+[2*ones(5,1),-5*ones(5,1),zeros(5,1)];                          
+% obsarray{4} =  2*0.9*[0  0  0
+%                 1  0  0
+%                 1  1  0
+%                 0  1  0 
+%                 0  0  0]+[5*ones(5,1),7*ones(5,1),zeros(5,1)];
+
 segs = size(waypts,1) - 1;
 %%% }}}
-iters = [0 1 2 4 8 12];
+% qq = 60;
+% iters = 0:floor(qq/6):qq;
+iters = 1000;
 % %% Solve {{{
-for iter = 1:6
+for iter = 1:length(iters)
 tic;
 bez = BezierTraj(waypts, min_der, iters(iter), cf2);
 bez.optimize();
@@ -33,7 +92,7 @@ traj = bez.bez_cp;
 
 %% Plotting tools {{{
 %% Plot trajectory {{{
-subplot(3,2,iter);
+subplot(ceil(sqrt(length(iters))),floor(sqrt(length(iters))),iter);
 % figure;
 trajplot = [];
 prev_ts = 0;
@@ -43,37 +102,43 @@ orange = [0.8500 0.3250 0.0980];
 green = [0.4660 0.6740 0.1880];
 red = [0.6350 0.0780 0.1840];
 for k = 0:(segs-1)
+    
   hold on;
   ts = prev_ts+bez.Tratio(k+1);
   tvec = linspace(prev_ts,ts, 50);
   plt = gen_bezier(tvec',traj(k*bcps+1:bcps*(k+1),:));
   trajplot = [trajplot; plt];
   plot3(plt(:,1),plt(:,2),plt(:,3), ...
-  'Color', blue, 'LineWidth', 2.0);
+  'Color',[.2 .2 .2], 'LineWidth', 2.0);
   prev_ts = ts;
+end
+for i=1:length(obsarray)
+      patch(obsarray{i}(:,1),obsarray{i}(:,2),[.5 .5 .5])
 end
 axis tight;
 %%% }}}
 
 %% Plot wp and ctrl pts {{{
 % hold on;
-scatter3(traj(:,1), traj(:,2), traj(:,3), 16, yellow, ...
+scatter3(traj(:,1), traj(:,2), traj(:,3), 16, 'k', ...
 'filled', 'MarkerEdgeColor', 'k');
 title_string  = sprintf('n = %d',iters(iter));
-title(title_string);
+% title(title_string);
 grid on;
 box on;
 hold on;
-scatter3(waypts(:,1), waypts(:,2), waypts(:,3), 56, orange, 's', 'filled');
-xlim([-1 6]);
-ylim([-3 4]);
+scatter3(waypts(:,1), waypts(:,2), waypts(:,3), 56, 'k', 's', 'filled',...
+'MarkerFaceColor', [1 1 1],'MarkerEdgeColor','k');
+% xlim([-10 10]);
+% ylim([-10 10]);
+ 
 % grid on;
 % hold on;
 %%% }}}
 xlabel('X (m)');
 ylabel('Y (m)');
-set(gca,'Xtick',-16:2:16);
-set(gca,'Ytick',-16:2:16);
+% set(gca,'Xtick',-16:2:16);
+% set(gca,'Ytick',-16:2:16);
 end
 
 % figure;
@@ -221,5 +286,5 @@ end
 % set(gca,'Xtick',0:2:10);
 % %%% }}}
 % %% }}}
-matlab2tikz('../../temp_opt.tex');
+% matlab2tikz('../../temp_opt.tex');
 % vim:foldmethod=marker:foldlevel=0

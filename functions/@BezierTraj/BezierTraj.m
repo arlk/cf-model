@@ -34,11 +34,19 @@ classdef BezierTraj < handle
     end
     res = optimize(bt)
     f = cost3bez(bt, x)
+    [c, ceq] = collide(bt, x)
     wp = get_phi_wp(bt)
     [c, ceq] = feasible(bt, k)
     ders(bt, kT)
+    flag = GJK(bt, shape1,shape2,iterations)
+  end
+  methods(Static)
+      function c = compMinDistBezierPoly_mex(a,b,c,d,e,f,g)
+          c=compMinDistBezierPoly_mex(a,b,c,d,e,f,g);
+      end
   end
 end
+
 
 % vim:foldmethod=marker:foldlevel=0
 
