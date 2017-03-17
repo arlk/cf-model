@@ -7,7 +7,6 @@ addpath('/home/arun/git_projs/matlab2tikz/src');
 %%% }}}
 cmap = lines;
 %% Setup {{{
-num_pts = 5;
 min_der = 4;
 
 crazyflie;
@@ -15,71 +14,15 @@ crazyflie;
 bcps = min_der*2+2;
 
 waypts = [  -10 -6 0; ...
-            -4 10 0; ...
-            -1.5 -1 0; ...
             2 6 0; ...
             10 10 0];
-       
-% waypts = [  -8 -4 0; ...
-%             -4 12 0; ...
-%             -1.5 0 0; ...
-%             1 5 0; ...
-%             10 10 0];
-%        
-% waypts = [  0 0 0; ...
-%             1 0 0; ...
-%             1 1 0; ...
-%             0 1 0; ...
-%             0 0 0];
+
         
 obsarray = {};
-obsarray{length(obsarray)+1} =  .75*[0  0  0
-                1  0  0
-                1  2  0
-                0  2  0 
-                0  0  0]+[5*ones(5,1),7.5*ones(5,1),zeros(5,1)];          
-obsarray{length(obsarray)+1} =  [0  0  0
-                2  0  0
-                2  10  0
-                0  10  0 
-                0  0  0]+[-1*ones(5,1),7*ones(5,1),zeros(5,1)];         
-obsarray{length(obsarray)+1} =  [0  0  0
-                2  0  0
-                2  10  0
-                0  10  0 
-                0  0  0]+[-6*ones(5,1),-5*ones(5,1),zeros(5,1)];         
-obsarray{length(obsarray)+1} =  [0  0  0
-                2  0  0
-                2  10  0
-                0  10  0 
-                0  0  0]+[2*ones(5,1),-5*ones(5,1),zeros(5,1)];                          
-
-% obsarray{1} =  [0  0  0
-%                 2  0  0
-%                 2  10  0
-%                 0  10  0 
-%                 0  0  0]+[-1*ones(5,1),7*ones(5,1),zeros(5,1)];         
-% obsarray{2} =  [0  0  0
-%                 2  0  0
-%                 2  10  0
-%                 0  10  0 
-%                 0  0  0]+[-7*ones(5,1),-5*ones(5,1),zeros(5,1)];         
-% obsarray{3} =  [0  0  0
-%                 2  0  0
-%                 2  10  0
-%                 0  10  0 
-%                 0  0  0]+[2*ones(5,1),-5*ones(5,1),zeros(5,1)];                          
-% obsarray{4} =  2*0.9*[0  0  0
-%                 1  0  0
-%                 1  1  0
-%                 0  1  0 
-%                 0  0  0]+[5*ones(5,1),7*ones(5,1),zeros(5,1)];
 
 segs = size(waypts,1) - 1;
-%%% }}}
-% qq = 60;
-% iters = 0:floor(qq/6):qq;
-iters = 1000;
+
+iters = 100;
 % %% Solve {{{
 for iter = 1:length(iters)
 tic;
@@ -96,11 +39,6 @@ subplot(ceil(sqrt(length(iters))),floor(sqrt(length(iters))),iter);
 % figure;
 trajplot = [];
 prev_ts = 0;
-blue = [0 0.4470 0.7410];
-yellow = [0.9290 0.6940 0.1250];
-orange = [0.8500 0.3250 0.0980];
-green = [0.4660 0.6740 0.1880];
-red = [0.6350 0.0780 0.1840];
 for k = 0:(segs-1)
     
   hold on;
