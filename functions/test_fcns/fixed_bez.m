@@ -15,10 +15,16 @@ bcps = min_der*2+2;
 
 
 
+% waypts = [  -10 0 0; ...
+%             -5 10 0; ...
+%             5 10 0;...
+%             10 0 0];
+
 waypts = [  -10 0 0; ...
-            -5 10 0; ...
+            -5 5 0; ...
             5 10 0;...
-            10 0 0];
+            10 12 0];
+
 z = zeros(size(waypts));
 
 N_wpts = size(waypts,1);
@@ -32,37 +38,51 @@ iters = 100;
 for iter = 1:length(iters)
 tic;
 
-N = 9;
-R = 1;
+N = 50;
+R = 2;
 final_cost = inf;
+tempwaypts = zeros(size(waypts));
+
+z = [0 0 0;
+    0 1 0;
+    1 1 0;
+    1 0 0;
+    1 -1 0;
+    0 -1 0;
+    -1 -1 0;
+    -1 0 0;
+    -1 1 0];
+
+if N>length(z)
+    z=[z;[2*(rand(N-length(z),2)-.5) zeros(N-length(z),1)]];
+end
+
 N_var_pts=N_wpts-2;
 total = N^2*N_var_pts;
 
-for i=0:N-1
-  for j=0:N-1
-      for k=1:N_var_pts;   
-          
-        z(k+1,:) = R*[i/N j/N 0];
-        
-        bez = BezierTraj(waypts+z, min_der, iters(iter), cf2);
+for i=1:N
+    for k=1:N_var_pts;   
+            
+        tempwaypts(k+1,:)=R*z(i,:);
+       
+        bez = BezierTraj(waypts+tempwaypts, min_der, iters(iter), cf2);
         res = bez.optimize();
 
-          COST = bez.cost3bez(res);
-          if final_cost>COST
-              final_cost    = COST;
-              final_res     = res;
-              final_waypts  = bez.waypts;
-              final_cp      = bez.bez_cp;
-          end
-          if 0==i && 0==j && 1==k
-              initial_cost   = COST;
-              initial_res    = res;
-              initial_waypts = bez.waypts;
-              initial_cp     = bez.bez_cp;
-          end
-      end
-  end
-  disp(i+1);
+        COST = bez.cost3bez(res);
+        if final_cost>COST
+            final_cost    = COST;
+            final_res     = res;
+            final_waypts  = bez.waypts;
+            final_cp      = bez.bez_cp;
+        end
+        if 1==i && 1==k
+            initial_cost   = COST;
+            initial_res    = res;
+            initial_waypts = bez.waypts;
+            initial_cp     = bez.bez_cp;
+        end
+    end
+    disp((i)/N);
 end
 
 % bez = BezierTraj(waypts, min_der, iters(iter), cf2);
@@ -78,8 +98,10 @@ traj = final_cp;
 %% }}}
 
 %% Plotting tools {{{
-
+subplot(ceil(sqrt(length(iters))),floor(sqrt(length(iters))),iter);
+hold on;
 %% Plot Waypoint Regions {{{
+
 for i = 2:N_var_pts+1;
     regions = [waypts(i,:)+[-R -R 0];...
                 waypts(i,:)+[R -R 0];...
@@ -88,16 +110,16 @@ for i = 2:N_var_pts+1;
 
     patch('Faces',1:4,'Vertices',regions(:,1:2),...
         'FaceColor','k','FaceAlpha',.2)
+    
+    scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
+        'filled', 'MarkerEdgeColor', 'k');
 end
 %%% }}}
 
 %% Plot trajectory {{{
 %   Final
-subplot(ceil(sqrt(length(iters))),floor(sqrt(length(iters))),iter);
-
 prev_ts = 0;
 for k = 0:(segs-1)
-  hold on;
   ts = prev_ts+bez.Tratio(k+1);
   tvec = linspace(prev_ts,ts, 50);
   plt = gen_bezier(tvec',final_cp(k*bcps+1:bcps*(k+1),:));
@@ -109,7 +131,6 @@ end
 
 %   Initial
 for k = 0:(segs-1)
-  hold on;
   ts = prev_ts+bez.Tratio(k+1);
   tvec = linspace(prev_ts,ts, 50);
   plt = gen_bezier(tvec',initial_cp(k*bcps+1:bcps*(k+1),:));
@@ -124,7 +145,7 @@ end
 for i=1:length(obsarray)
       patch(obsarray{i}(:,1),obsarray{i}(:,2),[.5 .5 .5])
 end
-axis tight;
+
 %%% }}}
 
 %% Plot wp and ctrl pts {{{
@@ -133,15 +154,17 @@ scatter3(final_cp(:,1), final_cp(:,2), final_cp(:,3), 16, 'k', ...
 'filled', 'MarkerEdgeColor', 'k');
 title_string  = sprintf('n = %d',iters(iter));
 % title(title_string);
-grid on;
-box on;
-hold on;
+
 scatter3(initial_waypts(:,1), initial_waypts(:,2),initial_waypts(:,3), 56, 'k', 'o', 'filled',...
 'MarkerFaceColor', [1 1 1],'MarkerEdgeColor','k');
 scatter3(final_waypts(:,1), final_waypts(:,2),final_waypts(:,3), 56, 'k', 's', 'filled',...
 'MarkerFaceColor', [1 1 1],'MarkerEdgeColor','k');
 
 %%% }}}
+grid on;
+box on;
+axis tight;
+hold on;
 xlabel('X (m)');
 ylabel('Y (m)');
 
