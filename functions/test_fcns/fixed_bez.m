@@ -15,10 +15,10 @@ bcps = min_der*2+2;
 
 
 
-waypts = [  -10 6 0; ...
-            2 6 0; ...
-            5 12 0;...
-            10 10 0];
+waypts = [  -10 0 0; ...
+            -5 10 0; ...
+            5 10 0;...
+            10 0 0];
 z = zeros(size(waypts));
 
 N_wpts = size(waypts,1);
@@ -32,39 +32,45 @@ iters = 100;
 for iter = 1:length(iters)
 tic;
 
-N = 10;
-R = 5;
+N = 9;
+R = 1;
 final_cost = inf;
+N_var_pts=N_wpts-2;
+total = N^2*N_var_pts;
 
 for i=0:N-1
   for j=0:N-1
-      for k=1:N_wpts-2;   
+      for k=1:N_var_pts;   
           
         z(k+1,:) = R*[i/N j/N 0];
-
+        
         bez = BezierTraj(waypts+z, min_der, iters(iter), cf2);
         res = bez.optimize();
 
           COST = bez.cost3bez(res);
           if final_cost>COST
-              final_cost    =COST;
-              final_wpts    = bez.waypts;
+              final_cost    = COST;
+              final_res     = res;
+              final_waypts  = bez.waypts;
               final_cp      = bez.bez_cp;
           end
           if 0==i && 0==j && 1==k
               initial_cost   = COST;
-              initial_wpts   = bez.waypts;
+              initial_res    = res;
+              initial_waypts = bez.waypts;
               initial_cp     = bez.bez_cp;
           end
       end
   end
+  disp(i+1);
 end
 
-% for i=1:3
-% 
-% end
-          
+% bez = BezierTraj(waypts, min_der, iters(iter), cf2);
+% options = optimoptions('fmincon','Algorithm',...
+%             'interior-point','MaxIterations',bez.iterations,'Display','off');
+% res = fmincon(@bez.optimize, T, [], [], [], [], lb, ub,[],options);        
 toc
+
 
 traj = final_cp;
 
@@ -72,6 +78,19 @@ traj = final_cp;
 %% }}}
 
 %% Plotting tools {{{
+
+%% Plot Waypoint Regions {{{
+for i = 2:N_var_pts+1;
+    regions = [waypts(i,:)+[-R -R 0];...
+                waypts(i,:)+[R -R 0];...
+                waypts(i,:)+[R R 0];...
+                waypts(i,:)+[-R R 0]];
+
+    patch('Faces',1:4,'Vertices',regions(:,1:2),...
+        'FaceColor','k','FaceAlpha',.2)
+end
+%%% }}}
+
 %% Plot trajectory {{{
 %   Final
 subplot(ceil(sqrt(length(iters))),floor(sqrt(length(iters))),iter);
@@ -117,16 +136,13 @@ title_string  = sprintf('n = %d',iters(iter));
 grid on;
 box on;
 hold on;
-scatter3(waypts(:,1), waypts(:,2), waypts(:,3), 56, 'k', 's', 'filled',...
+scatter3(initial_waypts(:,1), initial_waypts(:,2),initial_waypts(:,3), 56, 'k', 'o', 'filled',...
 'MarkerFaceColor', [1 1 1],'MarkerEdgeColor','k');
-% xlim([-10 10]);
-% ylim([-10 10]);
- 
-% grid on;
-% hold on;
+scatter3(final_waypts(:,1), final_waypts(:,2),final_waypts(:,3), 56, 'k', 's', 'filled',...
+'MarkerFaceColor', [1 1 1],'MarkerEdgeColor','k');
+
 %%% }}}
 xlabel('X (m)');
 ylabel('Y (m)');
-% set(gca,'Xtick',-16:2:16);
-% set(gca,'Ytick',-16:2:16);
+
 end
