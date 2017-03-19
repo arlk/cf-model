@@ -1,5 +1,7 @@
 %% Pre-setup {{{
 clear;
+clc;
+fprintf('main...\n\n');
 addpath('../');
 addpath('../bezier_utils');
 addpath('../model_utils');
@@ -13,10 +15,11 @@ crazyflie;
 
 bcps = min_der*2+2;
 
-
+rng(15);
 
 waypts = [  -10 0 0; ...
             -5 10 0; ...
+%             0 12.3 0;
             5 10 0;...
             10 4 0];
 
@@ -30,6 +33,7 @@ z = zeros(size(waypts));
 N_wpts = size(waypts,1);
         
 obsarray = {};
+obsdetarray = {};
 obst;
 
 segs = N_wpts - 1;
@@ -39,7 +43,7 @@ iters = 100;
 for iter = 1:length(iters)
 tic;
 
-N = 50;
+N = 1;
 R = 2;
 final_cost = inf;
 tempwaypts = zeros(size(waypts));
@@ -94,6 +98,8 @@ toc
 
 
 traj = final_cp;
+ctp = final_cp;
+res = final_res;
 
 
 %% }}}
@@ -109,43 +115,53 @@ for i = 2:N_var_pts+1;
                 waypts(i,:)+[R R 0];...
                 waypts(i,:)+[-R R 0]];
 
-    patch('Faces',1:4,'Vertices',regions(:,1:2),...
-        'FaceColor','k','FaceAlpha',.2)
-    
-    scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
-        'filled', 'MarkerEdgeColor', 'k');
+%     patch('Faces',1:4,'Vertices',regions(:,1:2),...
+%         'FaceColor','k','FaceAlpha',.2)
+%     
+%     scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
+%         'filled', 'MarkerEdgeColor', 'k');
 end
 %%% }}}
 
 %% Plot trajectory {{{
 %   Final
-prev_ts = 0;
-for k = 0:(segs-1)
-  ts = prev_ts+bez.Tratio(k+1);
-  tvec = linspace(prev_ts,ts, 50);
-  plt = gen_bezier(tvec',final_cp(k*bcps+1:bcps*(k+1),:));
-
-  plot3(plt(:,1),plt(:,2),plt(:,3), ...
-  'Color',[.2 .2 .2], 'LineWidth', 2.0);
-  prev_ts = ts;
-end
-
 %   Initial
+prev_ts = 0;
+N_plt_pts = 1000;
 for k = 0:(segs-1)
   ts = prev_ts+bez.Tratio(k+1);
-  tvec = linspace(prev_ts,ts, 50);
+  tvec = linspace(prev_ts,ts, N_plt_pts);
   plt = gen_bezier(tvec',initial_cp(k*bcps+1:bcps*(k+1),:));
 
   plot3(plt(:,1),plt(:,2),plt(:,3), ...
   'Color',[.2 .2 .2], 'LineWidth', 2.0);
   prev_ts = ts;
 end
+
+prev_ts = 0;
+plt=cell(1,segs);
+tvec=cell(1,segs);
+for k = 0:(segs-1)
+  ts = prev_ts+bez.Tratio(k+1);
+  tvec{k+1} = linspace(prev_ts,ts, N_plt_pts);
+  plt{k+1} = gen_bezier(tvec{k+1}',final_cp(k*bcps+1:bcps*(k+1),:));
+    
+  plot3(plt{k+1}(:,1),plt{k+1}(:,2),plt{k+1}(:,3), ...
+  'Color',[.2 .2 .2], 'LineWidth', 2.0);
+  prev_ts = ts;
+end
+tvec_total = [tvec{1} tvec{2} tvec{3}];
+plt_total = [plt{1};plt{2};plt{3}];
+
 %%% }}}
 
 %% Plot Obstacle {{{
-for i=1:length(obsarray)
-      patch(obsarray{i}(:,1),obsarray{i}(:,2),[.2 .2 .2])
-end
+% for i=1:length(obsarray)
+%       patch(obsarray{i}(:,1),obsarray{i}(:,2),[.2 .2 .2],'FaceAlpha',.8)
+% end
+
+p1 = patch(obsdetarray{4}(:,1),obsdetarray{4}(:,2),[.9 .9 .9]);
+patch(obsarray{4}(:,1),obsarray{4}(:,2),[.2 .2 .2],'FaceAlpha',.8)
 
 %%% }}}
 
@@ -169,6 +185,55 @@ hold on;
 xlabel('X (m)');
 ylabel('Y (m)');
 
-fprintf('Cost Difference:\t%f\n',initial_cost-final_cost);
 
+%% OBSTACLE AVOIDANCE {{{
+uistack(p1,'bottom');
+[col_wdw_pts,on] = inpolygon(plt_total(:,1),plt_total(:,2),obsdetarray{4}(:,1),obsdetarray{4}(:,2));
+col_wdw_pts=col_wdw_pts|on;
+
+[col_pts,on] = inpolygon(plt_total(:,1),plt_total(:,2),obsarray{4}(:,1),obsarray{4}(:,2));
+col_pts=col_pts|on;
+
+col_seg = ceil(find(col_wdw_pts,1)/N_plt_pts);
+
+tstart = min(tvec{col_seg});
+tend = max(tvec{col_seg});
+
+g = @(x) (x-tstart)/(tend-tstart);
+
+t_ws    = g(min(tvec_total(col_wdw_pts)));  
+t_c     = g(min(tvec_total(col_pts)));
+t_we    = g(max(tvec_total(col_wdw_pts)));
+
+t_temp = linspace(0,1,N_plt_pts);
+
+q = zeros(bcps,3);
+q(5,:) = [0 1 0];
+avoid_ctp = final_cp((col_seg-1)*bcps+1:bcps*(col_seg),:)+5*q;
+avoid_pth = gen_bezier(tvec{col_seg}',avoid_ctp);
+
+avoid_ctp_total = [ctp(1:10,:);avoid_ctp;ctp(21:30,:)];
+
+avoid_traj = BezierTraj(waypts, min_der, iters(iter), cf2);
+avoid_traj.x.a=avoid_ctp_total(:,1);
+avoid_traj.y.a=avoid_ctp_total(:,2);
+avoid_traj.z.a=avoid_ctp_total(:,3);
+
+Jx = avoid_traj.x.costbez(res);
+Jy = avoid_traj.y.costbez(res);
+J=Jx+Jy;
+
+
+%%% }}}
+
+%% PLOT OBST AVOID {{{
+plot(plt_total(col_wdw_pts,1),plt_total(col_wdw_pts,2),'Color',cmap(3,:));
+plot(plt_total(col_pts,1),plt_total(col_pts,2),'Color',cmap(7,:));
+
+plot3(avoid_pth(:,1),avoid_pth(:,2),avoid_pth(:,3), ...
+    'Color',cmap(1,:), 'LineWidth', 2.0);
+%%% }}}
+
+fprintf('Cost Difference:\t%f\n',final_cost-J);
+fprintf('Time Distribution:\t%f\t%f\t%f\n',res);
 end
