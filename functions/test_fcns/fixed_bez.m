@@ -15,21 +15,22 @@ bcps = min_der*2+2;
 
 
 
-% waypts = [  -10 0 0; ...
-%             -5 10 0; ...
-%             5 10 0;...
-%             10 0 0];
-
 waypts = [  -10 0 0; ...
-            -5 5 0; ...
+            -5 10 0; ...
             5 10 0;...
-            10 12 0];
+            10 4 0];
+
+% waypts = [  -10 0 0; ...
+%             -5 5 0; ...
+%             5 10 0;...
+%             10 12 0];
 
 z = zeros(size(waypts));
 
 N_wpts = size(waypts,1);
         
 obsarray = {};
+obst;
 
 segs = N_wpts - 1;
 
@@ -143,7 +144,7 @@ end
 
 %% Plot Obstacle {{{
 for i=1:length(obsarray)
-      patch(obsarray{i}(:,1),obsarray{i}(:,2),[.5 .5 .5])
+      patch(obsarray{i}(:,1),obsarray{i}(:,2),[.2 .2 .2])
 end
 
 %%% }}}
