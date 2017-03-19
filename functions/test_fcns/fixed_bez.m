@@ -169,4 +169,6 @@ hold on;
 xlabel('X (m)');
 ylabel('Y (m)');
 
+fprintf('Cost Difference:\t%f\n',initial_cost-final_cost);
+
 end
