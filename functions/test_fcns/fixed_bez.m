@@ -206,18 +206,6 @@ plot(plt_total(col_pts,1),plt_total(col_pts,2),'Color',cmap(7,:));
 %%% }}}
 
 % 1-Segment Bilal
-
-tstart = min(tvec{col_seg});
-tend = max(tvec{col_seg});
-
-g = @(x) (x-tstart)/(tend-tstart);
-
-t_ws    = g(min(tvec_total(col_wdw_pts)));  
-t_c     = g(min(tvec_total(col_pts)));
-t_we    = g(max(tvec_total(col_wdw_pts)));
-
-t_temp = linspace(0,1,N_plt_pts);
-
 q = zeros(bcps,3);
 q(5,:) = [0 .8 0];
 avoid_ctp = final_cp((col_seg-1)*bcps+1:bcps*(col_seg),:)+5*q;
@@ -236,12 +224,12 @@ J1=Jx+Jy;
 plot3(avoid_pth(:,1),avoid_pth(:,2),avoid_pth(:,3), ...
     'Color',cmap(1,:), 'LineWidth', 2.0);
 
-%% 2-Segment Bilal
+%% 2-Segment Naive
 tvec_mvwpt = tvec_total;
 cltp_mvwpt = cltp_total;
 
 
-cltp_mvwpt(6:25,2) = cltp_mvwpt(6:25,2)+1*ones(20,1);
+cltp_mvwpt(6:end-5,2) = cltp_mvwpt(6:end-5,2)+1*ones(length(cltp_mvwpt)-10,1);
 
 % Find plot 
 prev_ts = 0;
@@ -252,7 +240,7 @@ for k = 0:(segs-1)
   plt_mvwpt{k+1} = gen_bezier(tvec{k+1}',cltp{k+1});
     
   plot3(plt_mvwpt{k+1}(:,1),plt_mvwpt{k+1}(:,2),plt_mvwpt{k+1}(:,3), ...
-  'Color',[.2 .2 .2], 'LineWidth', 2.0);
+  'Color',cmap(2,:), 'LineWidth', 2.0);
   prev_ts = ts;
 end
 
@@ -267,9 +255,66 @@ Jx = avoid_traj.x.costbez_manual(res);
 Jy = avoid_traj.y.costbez_manual(res);
 J2=Jx+Jy;
 
- %%% }}}
+%% 2-Segment Bilal
+tstart = 0;
+tend = 1;
 
-fprintf('Cost Difference  %f  %f\n',...
-        J1/final_cost,J2/final_cost);
+g = @(x) (x-tstart)/(tend-tstart);
+
+t_ws    = g(min(tvec_total(col_wdw_pts)));  
+t_c     = g(min(tvec_total(col_pts)));
+t_we    = g(max(tvec_total(col_wdw_pts)));
+
+t_temp = linspace(0,1,N_plt_pts);
+
+tvec_mvwpt = tvec_total;
+cltp_mvwpt = cltp_total;
+
+bb=bernMatrix_a2b(18-1,tvec_total');
+b = bb(tvec_total<=.47,:);
+b= b(end,:);
+% qq = b(6:end-5);
+qq = b';
+qqq = (qq./(sum(qq.^2)));
+qqq=[zeros(6,1);qqq;zeros(6,1)];
+% qqq(1:5)=0;
+% qqq(end-6:end)=0;
+% for k = 0:(segs-2)
+%     val = qqq((k+1)*bcps);
+%     qqq((k+1)*bcps-2:(k+1)*bcps+2) = val*ones(5,1);
+% end
+qqq(11:14)=qqq(10)*ones(4,1);
+qqq(20-3:20)=qqq(21)*ones(4,1);
+
+% cltp_mvwpt(6:end-5,2) = cltp_mvwpt(6:end-5,2)+qqq(6:end-5)';
+cltp_mvwpt(:,2) = cltp_mvwpt(:,2)+qqq;
+% cltp_mvwpt(:,1) = cltp_mvwpt(:,1)+qqq;
+
+% Find plot 
+prev_ts = 0;
+plt_mvwpt = cell(1,segs);
+cltp = cell(1,segs);
+for k = 0:(segs-1)
+  cltp{k+1}=cltp_mvwpt(k*bcps+1:bcps*(k+1),:);
+  plt_mvwpt{k+1} = gen_bezier(tvec{k+1}',cltp{k+1});
+    
+  plot3(plt_mvwpt{k+1}(:,1),plt_mvwpt{k+1}(:,2),plt_mvwpt{k+1}(:,3), ...
+  'Color',cmap(3,:), 'LineWidth', 2.0);
+  prev_ts = ts;
+end
+
+avoid_pth = gen_bezier(tvec{col_seg}',cltp_mvwpt);
+
+avoid_traj = BezierTraj(waypts, min_der, iters(iter), cf2);
+avoid_traj.x.a=cltp_mvwpt(:,1);
+avoid_traj.y.a=cltp_mvwpt(:,2);
+avoid_traj.z.a=cltp_mvwpt(:,3);
+
+Jx = avoid_traj.x.costbez_manual(res);
+Jy = avoid_traj.y.costbez_manual(res);
+J3=Jx+Jy;
+
+fprintf('Cost Difference  %f  %f  %f\n',...
+        J1/final_cost,J2/final_cost,J3/final_cost);
 fprintf('Time Distribution:\t%f\t%f\t%f\n',res);
 end
