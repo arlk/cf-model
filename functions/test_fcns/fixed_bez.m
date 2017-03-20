@@ -155,37 +155,8 @@ for k = 0:(segs-1)
 end
 tvec_total = [tvec{1} tvec{2} tvec{3}];
 plt_total = [plt{1};plt{2};plt{3}];
+cltp_total = [cltp{1};cltp{2};cltp{3}];
 
-%   Moved Points
-prev_ts = 0;
-plt=cell(1,segs);
-tvec=cell(1,segs);
-cltp=cell(1,segs);
-for k = 0:(segs-1)
-  ts = prev_ts+bez.Tratio(k+1);
-  tvec{k+1} = linspace(prev_ts,ts, N_plt_pts);
-  q = final_cp(k*bcps+1:bcps*(k+1),:);
-    
-  if k==0
-      q(end-3:end,2)=q(end-3:end,2)+ones(4,1);
-  end
-  if k==1
-      q(:,2)=q(:,2)+ones(length(q),1);
-  end
-  if k==2
-      q(1:4,2)=q(1:4,2)+ones(4,1);
-  end
-  
-  cltp{k+1} = q;
-  plt{k+1} = gen_bezier(tvec{k+1}',cltp{k+1});
-  
-  plot3(plt{k+1}(:,1),plt{k+1}(:,2),plt{k+1}(:,3), ...
-  'Color',[.2 .2 .2], 'LineWidth', 2.0);
-  prev_ts = ts;
-end
-tvec_mvwpt = [tvec{1} tvec{2} tvec{3}];
-plt_mvwpt = [plt{1};plt{2};plt{3}];
-cltp_mvwpt = [cltp{1};cltp{2};cltp{3}];
 %%% }}}
 
 %% Plot Obstacle {{{
@@ -193,8 +164,9 @@ for i=1:length(obsarray)
       patch(obsarray{i}(:,1),obsarray{i}(:,2),[.2 .2 .2],'FaceAlpha',.8)
 end
 
-p1 = patch(obsdetarray{4}(:,1),obsdetarray{4}(:,2),[.9 .9 .9]);
-patch(obsarray{4}(:,1),obsarray{4}(:,2),[.2 .2 .2],'FaceAlpha',.8)
+% p1 = patch(obsdetarray{4}(:,1),obsdetarray{4}(:,2),[.9 .9 .9]);
+% p1=patch(obsarray{4}(:,1),obsarray{4}(:,2),[.2 .2 .2],'FaceAlpha',.8);
+% uistack(p1,'bottom');
 
 %%% }}}
 
@@ -220,7 +192,7 @@ ylabel('Y (m)');
 
 
 %% OBSTACLE AVOIDANCE {{{
-uistack(p1,'bottom');
+%% Collision Detection {{{
 [col_wdw_pts,on] = inpolygon(plt_total(:,1),plt_total(:,2),obsdetarray{4}(:,1),obsdetarray{4}(:,2));
 col_wdw_pts=col_wdw_pts|on;
 
@@ -228,6 +200,12 @@ col_wdw_pts=col_wdw_pts|on;
 col_pts=col_pts|on;
 
 col_seg = ceil(find(col_wdw_pts,1)/N_plt_pts);
+
+% plot(plt_total(col_wdw_pts,1),plt_total(col_wdw_pts,2),'Color',cmap(3,:));
+plot(plt_total(col_pts,1),plt_total(col_pts,2),'Color',cmap(7,:));
+%%% }}}
+
+% 1-Segment Bilal
 
 tstart = min(tvec{col_seg});
 tend = max(tvec{col_seg});
@@ -255,28 +233,43 @@ avoid_traj.z.a=avoid_ctp_total(:,3);
 Jx = avoid_traj.x.costbez_manual(res);
 Jy = avoid_traj.y.costbez_manual(res);
 J1=Jx+Jy;
-
-
-%%% }}}
-%% PLOT OBST AVOID {{{
-plot(plt_total(col_wdw_pts,1),plt_total(col_wdw_pts,2),'Color',cmap(3,:));
-plot(plt_total(col_pts,1),plt_total(col_pts,2),'Color',cmap(7,:));
-
 plot3(avoid_pth(:,1),avoid_pth(:,2),avoid_pth(:,3), ...
     'Color',cmap(1,:), 'LineWidth', 2.0);
-%%% }}}
 
-%% COST WAYPOINT MOVE {{{
-avoid2_traj = BezierTraj(waypts, min_der, iters(iter), cf2);
-avoid2_traj.x.a=cltp_mvwpt(:,1);
-avoid2_traj.y.a=cltp_mvwpt(:,2);
-avoid2_traj.z.a=cltp_mvwpt(:,3);
+%% 2-Segment Bilal
+tvec_mvwpt = tvec_total;
+cltp_mvwpt = cltp_total;
 
-Jx = avoid2_traj.x.costbez_manual(res);
-Jy = avoid2_traj.y.costbez_manual(res);
+
+cltp_mvwpt(6:25,2) = cltp_mvwpt(6:25,2)+1*ones(20,1);
+
+% Find plot 
+prev_ts = 0;
+plt_mvwpt = cell(1,segs);
+cltp = cell(1,segs);
+for k = 0:(segs-1)
+  cltp{k+1}=cltp_mvwpt(k*bcps+1:bcps*(k+1),:);
+  plt_mvwpt{k+1} = gen_bezier(tvec{k+1}',cltp{k+1});
+    
+  plot3(plt_mvwpt{k+1}(:,1),plt_mvwpt{k+1}(:,2),plt_mvwpt{k+1}(:,3), ...
+  'Color',[.2 .2 .2], 'LineWidth', 2.0);
+  prev_ts = ts;
+end
+
+avoid_pth = gen_bezier(tvec{col_seg}',cltp_mvwpt);
+
+avoid_traj = BezierTraj(waypts, min_der, iters(iter), cf2);
+avoid_traj.x.a=cltp_mvwpt(:,1);
+avoid_traj.y.a=cltp_mvwpt(:,2);
+avoid_traj.z.a=cltp_mvwpt(:,3);
+
+Jx = avoid_traj.x.costbez_manual(res);
+Jy = avoid_traj.y.costbez_manual(res);
 J2=Jx+Jy;
+
  %%% }}}
 
-fprintf('Cost Difference:\t%f\t%f\t%f\n',final_cost/final_cost,J1/final_cost,J2/final_cost);
+fprintf('Cost Difference  %f  %f\n',...
+        J1/final_cost,J2/final_cost);
 fprintf('Time Distribution:\t%f\t%f\t%f\n',res);
 end
