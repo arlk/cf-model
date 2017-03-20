@@ -115,11 +115,11 @@ for i = 2:N_var_pts+1;
                 waypts(i,:)+[R R 0];...
                 waypts(i,:)+[-R R 0]];
 
-%     patch('Faces',1:4,'Vertices',regions(:,1:2),...
-%         'FaceColor','k','FaceAlpha',.2)
-%     
-%     scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
-%         'filled', 'MarkerEdgeColor', 'k');
+    patch('Faces',1:4,'Vertices',regions(:,1:2),...
+        'FaceColor','k','FaceAlpha',.2)
+    
+    scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
+        'filled', 'MarkerEdgeColor', 'k');
 end
 %%% }}}
 
