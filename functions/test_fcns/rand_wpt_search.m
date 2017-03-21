@@ -42,7 +42,7 @@ iters = 100;
 for iter = 1:length(iters)
 tic;
 
-N_max = 50;
+N = 50;
 R = 2;
 final_cost = inf;
 tempwaypts = zeros(size(waypts));
@@ -52,22 +52,19 @@ z = [reshape(x,[9,1]) reshape(y,[9,1])];
 z=circshift(z,ceil(length(z)/2),1);
 z=[z zeros(length(z),1)];
 
-% if N>length(z)
-%     z=[z;[2*(rand(N-length(z),2)-.5) zeros(N-length(z),1)]];
-% end
-N = length(z);
+if N>length(z)
+    z=[z;[2*(rand(N-length(z),2)-.5) zeros(N-length(z),1)]];
+end
+
 N_var_pts=N_wpts-2;
 total = N^2*N_var_pts;
 col_pts_array = cell(length(obsarray),1);
 startwaypts = waypts;
 
-sarray = [1 2 3 4 5];
-
-for n = 1:length(sarray)
 for i=1:N
     for k=1:N_var_pts;   
          
-        tempwaypts(k+1,:)=R*z(i,:)/sarray(n);
+        tempwaypts(k+1,:)=R*z(i,:);
        
         bez = BezierTraj(startwaypts+tempwaypts, min_der, iters(iter), cf2);
         res = bez.optimize();
@@ -105,7 +102,7 @@ for i=1:N
             final_waypts  = bez.waypts;
             final_cp      = bez.bez_cp;
         end
-        if 1==i && 1==k && n==1
+        if 1==i && 1==k
             initial_cost   = COST;
             initial_res    = res;
             initial_waypts = bez.waypts;
@@ -113,7 +110,6 @@ for i=1:N
         end
     end
     disp(i);
-end
 end
 toc
 
@@ -142,11 +138,6 @@ for i = 2:N_var_pts+1;
     scatter(R*z(:,1)+initial_waypts(i,1), R*z(:,2)+initial_waypts(i,2), 4, 'k', ...
         'filled', 'MarkerEdgeColor', 'k');
     
-    for j = 1:length(sarray)
-        scatter(R*z(:,1)/sarray(j)+initial_waypts(i,1),...
-        R*z(:,2)/sarray(j)+initial_waypts(i,2), 4, 'k', ...
-        'filled', 'MarkerEdgeColor', 'k');
-    end
 end
 %%% }}}
 
