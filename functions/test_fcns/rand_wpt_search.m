@@ -254,7 +254,8 @@ cltp_mvwpt = cltp_total;
 bb=bernMatrix_a2b(18-1,tvec_total');
 b = bb(tvec_total<=.47,:);
 b= b(end,:);
-% qq = b(6:end-5);
+
+
 qq = b';
 qqq = (qq./(sum(qq.^2)));
 qqq=[zeros(6,1);qqq;zeros(6,1)];
