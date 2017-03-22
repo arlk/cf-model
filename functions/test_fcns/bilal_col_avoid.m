@@ -64,23 +64,13 @@ res = final_res;
 %%% }}}
 
 %% Plot trajectory {{{
+[plt,tvec,cltp] = gen_pw_bez(final_cp,segs,res,N_plt_pts);
 
-%   Initial
-%   Final
-prev_ts = 0;
-plt=cell(1,segs);
-tvec=cell(1,segs);
-cltp=cell(1,segs);
 for k = 0:(segs-1)
-  ts = prev_ts+bez.Tratio(k+1);
-  tvec{k+1} = linspace(prev_ts,ts, N_plt_pts);
-  cltp{k+1} = final_cp(k*bcps+1:bcps*(k+1),:);
-  plt{k+1} = gen_bezier(tvec{k+1}',cltp{k+1});
-    
   plot3(plt{k+1}(:,1),plt{k+1}(:,2),plt{k+1}(:,3), ...
   'Color',[.2 .2 .2], 'LineWidth', 2.0);
-  prev_ts = ts;
 end
+
 tvec_total = [tvec{1} tvec{2} tvec{3}];
 plt_total = [plt{1};plt{2};plt{3}];
 cltp_total = [cltp{1};cltp{2};cltp{3}];
@@ -133,17 +123,38 @@ for i=1:length(col_idx_array)
     col_t_array{i} = tvec_total(col_idx_array{i});
 end
 
-% Find collision start time
+% Find collision start time and segment
 col_start_t_array = cell(size(col_t_array));
+col_seg = cell(size(col_t_array));
 for i=1:length(col_t_array)
+    % Start time
     col_start_t_array{i} = min(col_t_array{i});
+    
+    % Start segment
+    for j=1:segs
+        if min(tvec{j})<=col_start_t_array{i}...
+                && col_start_t_array{i}<=max(tvec{j})
+            col_seg{i}=j;
+        end
+    end
 end
 
 % Find location on curve of collision
-    % drop to first obstacle here
-for i=1:length(col_t_array)
-    col_start_t_array{i} = min(col_t_array{i});
-end
+    % drop complexity to just first obstacle here
+    col_t = min(col_start_t_array{:});
+    d_ctl = gen_detour(col_t,tvec_total);
+
+    cltp_mvwpt = cltp_total;
+    
+    cltp_mvwpt = cltp_mvwpt-[d_ctl,d_ctl,zeros(bcps*segs,1)];
+
+    [plt2,tvec2,cltp2] = gen_pw_bez(cltp_mvwpt,segs,res,N_plt_pts);
+
+    for k = 0:(segs-1)
+      plot3(plt2{k+1}(:,1),plt2{k+1}(:,2),plt2{k+1}(:,3), ...
+      'Color',[.2 .2 .2], 'LineWidth', 2.0);
+    end
+
 %%%}}
 
 
