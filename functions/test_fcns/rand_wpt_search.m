@@ -21,10 +21,13 @@ rng(15);
 
 waypts = [  -10 0 0; ...
             -10 15 0; ...
-%             0 12.3 0;
             0 12 0;...
             10 17 0];
-
+        
+% waypts = [  -10 0 0; ...
+%             -10 15 0; ...
+%             0 12 0;...
+%             10 10 0];
 
 z = zeros(size(waypts));
 N_plt_pts = 1000;
@@ -109,7 +112,7 @@ for i=1:N
             initial_cp     = bez.bez_cp;
         end
     end
-    disp(i);
+    disp(ceil(i)/N);
 end
 toc
 
@@ -194,6 +197,8 @@ cltp_total = [cltp{1};cltp{2};cltp{3}];
 
 %%% }}}
 
+%% ADD POST OPT OBSTACLES
+[obsarray{4}, obsdetarray{4}]= gen_obst([-2 11],[.5 .5]);
 %% Plot Obstacle {{{
 for i=1:length(obsarray)
       p1 = patch(obsarray{i}(:,1),obsarray{i}(:,2),[.2 .2 .2],'FaceAlpha',.8);
@@ -252,7 +257,7 @@ tvec_mvwpt = tvec_total;
 cltp_mvwpt = cltp_total;
 
 bb=bernMatrix_a2b(18-1,tvec_total');
-b = bb(tvec_total<=.47,:);
+b = bb(tvec_total<=t_c,:);
 b= b(end,:);
 
 
@@ -294,5 +299,5 @@ J3=Jx+Jy;
 %%% }}}
 
 fprintf('COST:\t%f\t%f\n',final_cost/final_cost,J3/final_cost);
-
+axis equal;
 end
